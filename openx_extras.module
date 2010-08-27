@@ -1,0 +1,25 @@
+<?php
+
+function openx_extras_form_alter(&$form, &$form_state, $form_id) {
+	if ($form_id == '_openx_settings') {
+		$form['extras'] = array(
+		 '#type' => 'fieldset',
+		 '#title' => t('Extra options'),
+		);
+		$form['extras']['openx_extras_options'] = array(
+		  '#type' => 'checkboxes',
+		  '#title' => t('Options'),
+		  '#options' => array(
+		    'block' => t('Dont show a banner multiple times on the same page'),
+		   ),
+		   '#default_value' => variable_get('openx_extras_options'),
+		);
+	}
+}
+
+function openx_extras_preprocess_page(&$vars) {
+	$options = variable_get('openx_extras_options', array());
+	if (isset($options['block'])) {
+    $vars['head'] = str_replace('spcjs.php', 'spcjs.php?block=1', $vars['head']);
+	}
+}
