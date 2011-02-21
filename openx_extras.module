@@ -1,25 +1,40 @@
 <?php
 
-function openx_extras_form_alter(&$form, &$form_state, $form_id) {
-	if ($form_id == '_openx_settings') {
-		$form['extras'] = array(
-		 '#type' => 'fieldset',
+/**
+ * Adds additional settings to OpenX configuration form.
+ */
+function openx_extras_form__openx_settings_alter(&$form, &$form_state) {
+	$form['extras'] = array(
+    '#type' => 'fieldset',
 		 '#title' => t('Extra options'),
-		);
-		$form['extras']['openx_extras_options'] = array(
-		  '#type' => 'checkboxes',
-		  '#title' => t('Options'),
-		  '#options' => array(
-		    'block' => t('Dont show a banner multiple times on the same page'),
-		   ),
-		   '#default_value' => variable_get('openx_extras_options'),
-		);
+	);
+	$form['extras']['openx_extras_options'] = array(
+		'#type' => 'checkboxes',
+		'#title' => t('Options'),
+		'#options' => array(
+		  'block' => t('Dont show a banner multiple times on the same page'),
+      'init_js' => t('Add javascipt on every page. This is required for OpenX to work if output from OpenX blocks are cached.'),
+	  ),
+    '#default_value' => variable_get('openx_extras_options'),
+	);
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function openx_extras_init() {
+	$options = variable_get('openx_extras_options', array());
+	if (isset($options['init_js'])) {
+		//Add OpenX javascript in case output from OpenX blocks are cached.
+		module_load_include('inc', 'openx');
+		_openx_javascript();
 	}
 }
 
 function openx_extras_preprocess_page(&$vars) {
 	$options = variable_get('openx_extras_options', array());
 	if (isset($options['block'])) {
-    $vars['head'] = str_replace('spcjs.php', 'spcjs.php?block=1', $vars['head']);
+		//We need to do string replacement as we can't modify Javascript previously
+		$vars['head'] = str_replace('spcjs.php', 'spcjs.php?block=1', $vars['head']);
 	}
 }
