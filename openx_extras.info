@@ -2,4 +2,3 @@ name = "OpenX Extras"
 description = "Additional options for OpenX"
 dependencies[] = "openx"
 core = 6.x
-package = "OpenX
